@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-server
+  labels:
+    name: fastapi-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-todo-api
+  template:
+    metadata:
+      labels:
+        app: fastapi-todo-api
+    spec:
+      containers:
+        - name: fastapi-todo-api
+          image: borysol25/fastapi-todo-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: env-file
+              readOnly: true
+              mountPath: "/app/.env"
+              subPath: .env
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: host
+                  name: postgres-db-credentials
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: port
+                  name: postgres-db-credentials
+      volumes:
+        - name: env-file
+          secret:
+            secretName: fastapi-server-credentials

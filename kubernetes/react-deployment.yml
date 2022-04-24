@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-client
+  labels:
+    name: react-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-todo-client
+  template:
+    metadata:
+      labels:
+        app: react-todo-client
+    spec:
+      containers:
+        - name: react-todo-client
+          image: borysol25/react-todo-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: REACT_APP_BASE_API_URL
+              valueFrom:
+                secretKeyRef:
+                  key: base_api_url
+                  name: react-client-credentials
