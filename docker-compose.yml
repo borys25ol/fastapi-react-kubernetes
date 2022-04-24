@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: fastapi-todo-server-local
+    build:
+      context: .
+      dockerfile: ./services/api/Dockerfile
+    ports:
+      - 5000:5000
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      - db
+
+  db:
+    container_name: postgres-db-local
+    build:
+      context: .
+      dockerfile: ./services/db/Dockerfile
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=tododb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data_local:/var/lib/postgresql/data/
+
+  client:
+    image: borysol25/react-todo-frontend
+    container_name: react-todo-client-local
+    ports:
+      - 3000:80
+    environment:
+      - REACT_APP_BASE_API_URL=http://0.0.0.0:5000
+    depends_on:
+      - app
+
+volumes:
+  postgres_data_local:
